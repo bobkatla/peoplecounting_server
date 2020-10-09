@@ -112,6 +112,32 @@ app.get('/getnumber/:id', (req, res) => {
     });
 });
 
+// get all building
+app.get('/getall', (req, res) => {
+    onlModel.find({}, (err, docs) => {
+        if(err) {
+            console.log(err);
+          } else {
+            if(docs.length === 0){
+              res.status(400).json("list is empty");
+            } else {
+              res.status(200).json(docs);
+            }
+          }
+    });
+});
+
+app.get('/getsum', (req, res) => {
+  onlModel.aggregate([{
+    $group: {
+      _id: "",
+      count: { $sum: "$count" }
+    }
+  }])
+  .then((group) => res.status(200).json(group[0].count))
+  .catch(err => console.log(err));
+});
+
 // run on port 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
