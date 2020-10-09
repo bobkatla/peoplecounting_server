@@ -17,7 +17,7 @@ app.use(cors());
 
 // set up mongo
 const monConnOnline = mongoose.createConnection(
-    'mongodb+srv://bobkatla:conmeocon1@sit314.jhepn.mongodb.net/sit314?retryWrites=true&w=majority', 
+  process.env.MONGO_KEY, 
     { useNewUrlParser: true, useUnifiedTopology: true});
 const onlModel = monConnOnline.model('Building', Building);
 
