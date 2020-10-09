@@ -42,7 +42,7 @@ app.put('/countplus', (req, res) => {
           } else {
             onlModel.updateOne({id}, {$inc: {count: 1}})
             .then(() => {
-                res.status(200).json("PLUS the bulding successfully");
+                res.status(200).json(`PLUS the bulding id ${id} successfully`);
             });
           }
         }
@@ -60,7 +60,7 @@ app.put('/countminus', (req, res) => {
         } else {
           onlModel.updateOne({id}, {$inc: {count: -1}})
           .then(() => {
-              res.status(200).json("MINUS the bulding successfully");
+              res.status(200).json(`MINUS the bulding id ${id} successfully`);
           });
         }
       }
