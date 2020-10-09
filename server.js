@@ -5,6 +5,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 const Building = require('./models/building');
 // some requirements
 const cors = require('cors');
+const mongoose = require('mongoose');
 // express.js connect later
 const express = require('express');
 const app = express();
@@ -21,14 +22,15 @@ const monConnOnline = mongoose.createConnection(
 const onlModel = monConnOnline.model('Building', Building);
 
 // RESTful api
+// for testing
 app.get('/', (req, res) => {res.json('it is working');});
-
 app.post('/test', (req, res) => {
-    const {email, password} = req.body;
-    res.json(email);
+    const {something} = req.body;
+    res.json(something);
 });
 
-app.post('/counting', (req, res) => {
+// for counting the people inside a building
+app.put('/countplus', (req, res) => {
     const {id} = req.body;
 
     onlModel.find({id}, (err, docs) => {
@@ -38,7 +40,7 @@ app.post('/counting', (req, res) => {
           if(docs.length === 0){
             res.status(400).json("error building does not exist");
           } else {
-            onlModel.updateOne({id}, {$push: {count: ???}})
+            onlModel.updateOne({id}, {$inc: {count: 1}})
             .then(() => {
                 res.status(200).json("update the bulding successfully");
             });
@@ -46,22 +48,54 @@ app.post('/counting', (req, res) => {
         }
       });
 });
+app.put('/countminus', (req, res) => {
+  const {id} = req.body;
 
-app.post('/addbuilding', (req, res) => {
-    const {id, name, area} = req.body;
-    const newBuilding = new onlModel({
-        id,
-        name,
-        area,
-        count: 0
+  onlModel.find({id}, (err, docs) => {
+      if(err) {
+        console.log(err);
+      } else {
+        if(docs.length === 0){
+          res.status(400).json("error building does not exist");
+        } else {
+          onlModel.updateOne({id}, {$inc: {count: -1}})
+          .then(() => {
+              res.status(200).json("update the bulding successfully");
+          });
+        }
+      }
     });
-
-    newSensorOnl.save().then(doc => {
-        // console.log(doc);
-        res.status(200).json("successfully adding new building")
-    }).catch(err => res.status(400).json('error adding building'));
 });
 
+// for admin work of adding new building
+app.post('/addbuilding', (req, res) => {
+    const {id, image, name, area} = req.body;
+
+    onlModel.find({id}, (err, docs) => {
+      if(err) {
+        console.log(err);
+      } else {
+        if(docs.length === 0){
+          const newBuilding = new onlModel({
+              id,
+              image,
+              name,
+              area,
+              count: 0
+          });
+      
+          newBuilding.save().then(doc => {
+              // console.log(doc);
+              res.status(200).json("successfully adding new building")
+          }).catch(err => res.status(400).json('error adding building'));
+        } else {
+          res.status(400).json("the id already existed");
+        }
+      }
+    });
+});
+
+// query to get a whole building
 app.get('/getnumber/:id', (req, res) => {
     const {id} = req.params;
 
